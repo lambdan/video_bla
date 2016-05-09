@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # I use this to remove stereo tracks from files that have both a AC3 5.1 and a Stereo track, as I only need the 5.1 track
-# Put the script in the same folder as mkv/mp4s, then run './RemoveStereoTracks.sh mkv yes' to remove them from MKV files and remove original files
+# Put the script in the same folder as mkv/mp4s, then run './RemoveStereoTracks.sh mkv delete' to remove them from MKV files and remove original files
 # './RemoveStereoTracks.sh mp4' to remove from MP4 files, but keep original files
 
 # WARNING
@@ -14,9 +14,9 @@ if [ "$1" = "mp4" ]; then
 elif [ "$1" = "mkv" ]; then
 	format="mkv"
 else
-	echo "Usage: $0 <mkv/mp4> <remove yes/no>"
+	echo "Usage: $0 <mkv/mp4> [delete]"
 	echo "Will process all mkv/mp4 in current folder."
-	echo "Adding yes after format will remove original file"
+	echo "Adding delete after format will remove original file"
   	exit
 fi
 
@@ -47,7 +47,7 @@ do
 
 	mkvmerge -o "temp.$format" --audio-tracks "$tracknumber" "$f" # output new mkv, with only selected audio track
 
-	if [ "$2" = "yes" ]; then
+	if [ "$2" = "delete" ]; then
 		rm "$f" # remove old file
 	else
 		mv "$f" "Original $f"
