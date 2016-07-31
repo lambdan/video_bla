@@ -1,14 +1,14 @@
-@echo off
-setlocal enabledelayedexpansion
-
-set version=1.1
-title encode_youtube %version% by @djs__ http://lambdan.se
 :: Script I use to encode gameplay (usually speedruns) for YouTube
 :: Output is originalfilename_output.mp4, in the same folder as original file
 :: Requires ffmpeg (either in path or just put ffmpeg.exe next to this .bat)
 
 :: Inspired by https://github.com/donmelton/video_transcoding and anri-chan
 :: Encodes follow YouTube Guidelines: https://support.google.com/youtube/answer/1722171?hl=en
+@echo off
+setlocal enabledelayedexpansion
+
+set version=1.1
+title encode_youtube %version% by @djs__ http://lambdan.se
 
 set preset=medium
 :: ultrafast < superfast < veryfast < faster < fast < medium < slow < slower < veryslow < placebo
