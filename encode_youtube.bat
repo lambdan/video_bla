@@ -1,4 +1,8 @@
 @echo off
+REM Script I use to encode gameplay (usually speedruns) for YouTube
+REM Requires ffmpeg (either in path or just put ffmpeg.exe next to this .bat)
+REM Inspired by https://github.com/donmelton/video_transcoding and anri-chan
+REM Encodes follow YouTube Guidelines: https://support.google.com/youtube/answer/1722171?hl=en
 
 if "%1."=="." goto novid
 
