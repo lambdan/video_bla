@@ -1,18 +1,42 @@
 @echo off
-REM Script I use to encode gameplay (usually speedruns) for YouTube
-REM Requires ffmpeg (either in path or just put ffmpeg.exe next to this .bat)
-REM Inspired by https://github.com/donmelton/video_transcoding and anri-chan
-REM Encodes follow YouTube Guidelines: https://support.google.com/youtube/answer/1722171?hl=en
+setlocal enabledelayedexpansion
 
-if "%1."=="." goto novid
+set version=1.1
+title encode_youtube %version% by @djs__ http://lambdan.se
+:: Script I use to encode gameplay (usually speedruns) for YouTube
+:: Output is originalfilename_output.mp4, in the same folder as original file
+:: Requires ffmpeg (either in path or just put ffmpeg.exe next to this .bat)
 
-echo Input video: %1
+:: Inspired by https://github.com/donmelton/video_transcoding and anri-chan
+:: Encodes follow YouTube Guidelines: https://support.google.com/youtube/answer/1722171?hl=en
+
+set preset=medium
+:: ultrafast < superfast < veryfast < faster < fast < medium < slow < slower < veryslow < placebo
+:: the faster the encode is, the worse the compression is
+
+:: We need a video to work with
+if "%1."=="." goto novid 
+
+echo Input video: "%1"
+
+set trim=n
+echo Do you want to trim the video? [ y / (n) ]
+set /p trim=">>> "
+if /I "%trim%" == "y" (
+	echo Use HH:MM:SS
+	set /p vidstart=Video start: 
+	set /p vidend=Video end: 
+	set trimcmd=-async 1 -ss !vidstart! -to !vidend!
+) else (
+	set trimcmd= 
+)
 
 set def=SD
 echo Is this video SD (less than 720p) or HD? [ (SD) / HD ]
 set /p def=">>> " 
-
-if "%def%" == "SD" (
+:: For SD we need to ask for aspect ratio, as its probably 720x480 source
+if /I "%def%" == "SD" (
+	set def=SD
 	goto askaspect
 ) else (
 	goto askfps
@@ -36,26 +60,32 @@ if "%ar%" == "4:3" (
 set framerate=60
 echo 30 or 60 fps game? [ 30 / (60) ] 
 set /p framerate=">>> "
-if "%def%" == "HD" (
+title Encoding...
+if /I "%def%" == "HD" (
+	set def=HD
 	goto encodehd
 ) else (
 	goto upscaleto720p
 )
 
 :encodehd
-if %framerate% == "30" (
-	ffmpeg -i %1 -vf "fps=30" -bf 2 -pix_fmt yuv420p -vprofile high -level 4.1 -preset medium -crf 1 -x264opts vbv-maxrate=8000:vbv-bufsize=4000:keyint=600:min-keyint=60:crf-max=25:qpmax=34 %1output.mp4
+if %framerate% == 30 (
+	ffmpeg -i "%1" %trimcmd% -vf "fps=30" -bf 2 -pix_fmt yuv420p -vprofile high -level 4.1 -preset %preset% -crf 18 -b:a 384k  "%~n1_output.mp4"
 ) else ( 
-	ffmpeg -i %1 -bf 2 -pix_fmt yuv420p -vprofile high -level 4.1 -preset medium -crf 1 -x264opts vbv-maxrate=12000:vbv-bufsize=6000:keyint=600:min-keyint=60:crf-max=25:qpmax=34 %1output.mp4
+	ffmpeg -i "%1" %trimcmd% -bf 2 -pix_fmt yuv420p -vprofile high -level 4.1 -preset %preset% -crf 18 -b:a 384k  "%~n1_output.mp4"
 )
+title Encode Done
+pause
 exit
 
 :upscaleto720p
-if %framerate% == "30" (
-	ffmpeg -i %1 -c:v libx264 -aspect %aspect% -vf "scale=%width%:720,fps=30" -bf 2 -pix_fmt yuv420p -vprofile high -level 4.1 -preset medium -crf 1 -x264opts vbv-maxrate=5000:vbv-bufsize=2500:keyint=600:min-keyint=60:crf-max=25:qpmax=34 %1output.mp4
+if %framerate% == 30 (
+	ffmpeg -i "%1" %trimcmd% -c:v libx264 -aspect %aspect% -vf "scale=%width%:720 , fps=30" -bf 2 -pix_fmt yuv420p -vprofile high -level 4.1 -preset %preset% -crf 18 -b:a 384k "%~n1_output.mp4"
 ) else (
-	ffmpeg -i %1 -c:v libx264 -aspect %aspect% -vf scale=%width%:720 -bf 2 -pix_fmt yuv420p -vprofile high -level 4.1 -preset medium -crf 1 -x264opts vbv-maxrate=7500:vbv-bufsize=3750:keyint=600:min-keyint=60:crf-max=25:qpmax=34 %1output.mp4
+	ffmpeg -i "%1" %trimcmd% -c:v libx264 -aspect %aspect% -vf scale=%width%:720 -bf 2 -pix_fmt yuv420p -vprofile high -level 4.1 -preset %preset% -crf 18 -b:a 384k  "%~n1_output.mp4"
 )
+title Encode Done
+pause
 exit
 
 :novid
