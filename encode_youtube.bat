@@ -1,23 +1,26 @@
-:: Script I use to encode gameplay (usually speedruns) for YouTube
-:: Output is originalfilename_output.mp4, in the same folder as original file
-:: Requires ffmpeg (either in path or just put ffmpeg.exe next to this .bat)
-
-:: Inspired by https://github.com/donmelton/video_transcoding and anri-chan
-:: Encodes follow YouTube Guidelines: https://support.google.com/youtube/answer/1722171?hl=en
+:: http://lambdan.se/130/encode_youtube
 @echo off
 setlocal enabledelayedexpansion
 
-set version=1.1
+set version=1.1.1
 title encode_youtube %version% by @djs__ http://lambdan.se
 
 set preset=medium
 :: ultrafast < superfast < veryfast < faster < fast < medium < slow < slower < veryslow < placebo
 :: the faster the encode is, the worse the compression is
+set crf=18
+:: Ranges from 0 (lossless) to 51 (worst). 18-28 is a "subjectively sane range". 
+:: "Consider 18 to be visually lossless or nearly so" -https://trac.ffmpeg.org/wiki/Encode/H.264
 
-:: We need a video to work with
-if "%1."=="." goto novid 
+:: Full path input and output and escape spaces yadda yadda
+set input="%~f1"
+set output="%~d1%~p1%~n1_output.mp4"
 
-echo Input video: "%1"
+:: Check if we got a video to work with
+if [%1] == [] goto novid 
+
+echo Input video: %input%
+::echo Output video: %output%
 
 set trim=n
 echo Do you want to trim the video? [ y / (n) ]
@@ -70,9 +73,9 @@ if /I "%def%" == "HD" (
 
 :encodehd
 if %framerate% == 30 (
-	ffmpeg -i "%1" %trimcmd% -vf "fps=30" -bf 2 -pix_fmt yuv420p -vprofile high -level 4.1 -preset %preset% -crf 18 -b:a 384k  "%~n1_output.mp4"
+	ffmpeg -i %input% %trimcmd% -vf "fps=30" -bf 2 -pix_fmt yuv420p -vprofile high -level 4.1 -preset %preset% -crf %crf% -b:a 384k %output%
 ) else ( 
-	ffmpeg -i "%1" %trimcmd% -bf 2 -pix_fmt yuv420p -vprofile high -level 4.1 -preset %preset% -crf 18 -b:a 384k  "%~n1_output.mp4"
+	ffmpeg -i %input%  %trimcmd% -bf 2 -pix_fmt yuv420p -vprofile high -level 4.1 -preset %preset% -crf %crf% -b:a 384k %output%
 )
 title Encode Done
 pause
@@ -80,9 +83,9 @@ exit
 
 :upscaleto720p
 if %framerate% == 30 (
-	ffmpeg -i "%1" %trimcmd% -c:v libx264 -aspect %aspect% -vf "scale=%width%:720 , fps=30" -bf 2 -pix_fmt yuv420p -vprofile high -level 4.1 -preset %preset% -crf 18 -b:a 384k "%~n1_output.mp4"
+	ffmpeg -i %input%  %trimcmd% -c:v libx264 -aspect %aspect% -vf "scale=%width%:720 , fps=30" -bf 2 -pix_fmt yuv420p -vprofile high -level 4.1 -preset %preset% -crf %crf% -b:a 384k %output%
 ) else (
-	ffmpeg -i "%1" %trimcmd% -c:v libx264 -aspect %aspect% -vf scale=%width%:720 -bf 2 -pix_fmt yuv420p -vprofile high -level 4.1 -preset %preset% -crf 18 -b:a 384k  "%~n1_output.mp4"
+	ffmpeg -i %input%  %trimcmd% -c:v libx264 -aspect %aspect% -vf scale=%width%:720 -bf 2 -pix_fmt yuv420p -vprofile high -level 4.1 -preset %preset% -crf %crf% -b:a 384k %output%
 )
 title Encode Done
 pause
