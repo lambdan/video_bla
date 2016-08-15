@@ -1,5 +1,6 @@
-# TranscodeVideos.py - transcode a bunch of videos and move the originals
+# TranscodeVideos.py - transcode a bunch of videos and move or remove the originals
 # (I used it for converting all my various .AVI files to x264 & AAC .MP4 files)
+# https://github.com/lambdan/video_bla/blob/master/TranscodeVideos.py
 
 import os
 import subprocess
@@ -96,6 +97,7 @@ def error(reason, path):
 # make sure we have all files we need to run
 if not os.path.isfile(pathstxt):
 	print 'Textfile "' + pathstxt + '" with paths to files to be processed not found. Please create one.'
+	raw_input("Press the <ENTER> key to continue...")
 	sys.exit(1)
 if not os.path.isfile(donetxt):
 	print 'Creating ' + donetxt
@@ -119,7 +121,7 @@ with open(pathstxt) as f:
 		for line in donelist:
 			if filepath in line:
 				found = True
-				print "Already done: " + filepath[:-1]
+				#print "Already done: " + filepath[:-1]
 				continue
 
 		# we have not transcoded this video
