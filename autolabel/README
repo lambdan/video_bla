@@ -1,0 +1,7 @@
+First run `getlengths.py > lengthts of labeled.txt` in the directory of the labeled ones to get the lenghts of the properly labeled videos.
+Then copy "lengths of labeled.txt" and "renamebasedonlength.py" into the folder with the unlabeled videos, and run it. 
+Set "shouldrename = True" if you're confident it is doing it right.
+
+For the future:
+- Make Season parameter and should rename switch command line arguments, instead of editting the top of the script
+- Make Season parameter uncessary (use Regex or something to figure out what the season is)
