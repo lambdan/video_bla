@@ -3,9 +3,10 @@ Compares audio track hashes to automatically rename TV Episodes to what you prev
 Useful if you've previously ripped TV Shows/Episodes with [MakeMKV][makemkv] and properly labeled them, then transcoded the video but kept the audio in the original format/passed it through, removed the MakeMKV originals, and now you want to re-rip them again but don't want to manually identify and rename the episodes again.
 
 If you altered the audio in any way this won't work, because the hashes won't be the same !!!
-If you made DTS into AC3 or AC3 Stereo in AAC, or anything like that, you cannot use this.
-Even a scratch on your disc can cause the audio to be very slightly altered, thus making it impossible to use this script.
-Atleast right now. Maybe in the future I am smarter and can figure out a way.
+
+- If you made DTS into AC3 or AC3 Stereo in AAC, or anything like that, you cannot use this.
+- Even a scratch on your disc can cause the audio to be very slightly altered, thus making it impossible to use this script.
+- Atleast right now. Maybe in the future I am smarter and can figure out a way.
 
 Only ran on Windows 10 with Python 2.7, but you can very easily run it on Linux/macOS. Just make a bash version of extract.bat, or manually do the commands. The .py scripts should be cross platform already.
 
@@ -34,19 +35,19 @@ When you run `rename.py` it will ask you if you want to start renaming or just t
 
 Tested with my _That '70s Show PAL DVDs_ and it worked perfectly.
 
-<a name="2secs"></a>Why 2 seconds is shortest length we can use: Because sometimes when you extract audio from a video the length won't be exactly the same, it will vary by a few milliseconds depending on interleaves and keyframe intervals etc. If we try to compare hashes on two _seemingly_ identical audio extractions that came from two different video files, the hash will differ because the length is different. However, if we then extract a section of audio from these audio extractions the results are always the same (for some reason), and then we can hash them and get identical values. I guess you can mess around with milliseconds, but whatever. 2 seconds is already very fast, and honestly, even 30 seconds doesn't take long.
+<a name="2secs"></a>__Why 2 seconds is shortest length we can use:__ Because sometimes when you extract audio from a video the length won't be exactly the same, it will vary by a few milliseconds depending on interleaves and keyframe intervals etc. If we try to compare hashes on two _seemingly_ identical audio extractions that came from two different video files, the hash will differ because the length is different. However, if we then extract a section of audio from these audio extractions the results are always the same (for some reason), and then we can hash them and get identical values. I guess you can mess around with milliseconds, but whatever. 2 seconds is already very fast, and honestly, even 30 seconds doesn't take long.
 
 ## History
 
-### 2018-01-06
-	- Literally atleast 1000x faster (just hash a few seconds (2 secs by default) instead of the whole audio track)
-	- Python scripts much more user friendly
-	- No need to change audio format/extension (I use WAV now)
-	- Check and stop for duplicate hashes
-	- Warn and pause for unmatched videos
+2018-01-06
+- Literally atleast 1000x faster (just hash a few seconds (2 secs by default) instead of the whole audio track)
+- Python scripts much more user friendly
+- No need to change audio format/extension (I use WAV now)
+- Check and stop for duplicate hashes
+- Warn and pause for unmatched videos
 
-### 2017-12-15
-	- Initial Version
+2017-12-15	
+- Initial Version
 
 [makemkv]: https://www.makemkv.com/
 
