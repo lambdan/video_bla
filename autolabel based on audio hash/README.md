@@ -1,5 +1,7 @@
 _Compares audio track hashes to automatically rename TV Episodes to what you previously named them._
 
+![Script Running](https://raw.githubusercontent.com/lambdan/video_bla/master/autolabel%20based%20on%20audio%20hash/images/ordering.PNG)
+
 Useful if you've previously ripped TV Shows/Episodes with [MakeMKV][makemkv] and properly labeled them, then transcoded the video but kept the audio in the original format/passed it through, removed the MakeMKV originals, and now you want to re-rip them again but don't want to manually identify and rename the episodes again.
 
 [makemkv]: https://www.makemkv.com/
@@ -7,14 +9,14 @@ Useful if you've previously ripped TV Shows/Episodes with [MakeMKV][makemkv] and
 __If you altered the audio in any way this won't work, because the hashes won't be the same:__
 - If you made DTS into AC3 or AC3 Stereo in AAC, or anything like that, you cannot use this.
 - Even a scratch on your disc can cause the audio to be very slightly altered, thus making it impossible to use this script.
-- Atleast right now. Maybe in the future I am smarter and can figure out a way.
+- ...maybe in the future I am smarter and can figure out a way to make it work even if the audio has been altered
 
 ## Concept
 
 - Extract the first couple of seconds of audio from the files that are already labeled, into WAV files
 - Hash (sha1) those audio files and store the filenames and hashes
 - Do the same for the unlabeled files
-- Compare hashes, and if they match, rename the unlabeled video to what the previously renamed video was called
+- Compare hashes, and if they match, rename the unlabeled video to what the renamed video was called, because their audio tracks are identical!
 
 ## Requirements
 
