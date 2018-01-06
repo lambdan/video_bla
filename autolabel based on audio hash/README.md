@@ -38,14 +38,14 @@ Tested with my _That '70s Show PAL DVDs_ and it worked perfectly.
 
 ## History
 
-2018-01-06
+### 2018-01-06
 	- Literally atleast 1000x faster (just hash a few seconds (2 secs by default) instead of the whole audio track)
 	- Python scripts much more user friendly
 	- No need to change audio format/extension (I use WAV now)
 	- Check and stop for duplicate hashes
 	- Warn and pause for unmatched videos
 
-2017-12-15
+### 2017-12-15
 	- Initial Version
 
 [makemkv]: https://www.makemkv.com/
