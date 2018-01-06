@@ -5,9 +5,10 @@ import subprocess
 import hashlib
 
 HASHES_TXT = "hashes.txt"
+input_extension = ".mkv"
 renamed_file_extension = ".mkv" # include . !!! i recommend mkv as it can swallow anything
 output_folder = "Renamed/"
-length = 2 # must be same as in extract.bat
+length = 5 # must be same as in extract.bat
 
 print "Settings:\n\tHashes txt = " + HASHES_TXT + "\n\tOutput Container = " + renamed_file_extension + "\n\tOutput Folder = " + output_folder + "\n\tAudio Length = " + str(length) + "\n"
 
@@ -49,41 +50,77 @@ if not os.path.exists(output_folder): # we will move files we rename to avoid ru
     os.makedirs(output_folder)
 
 # read in hashes
-HASHES = {}
+old_names = []
+old_hashes = []
 with open(HASHES_TXT) as f:
 	lines = f.readlines()
 for l in lines:
 	data = l.strip().split(" = ")
-	HASHES[data[0][:-4]] = data[1] # [:-4] to remove .ext from title
-#print HASHES
+	old_names.append(data[0][:-4]) # name without .ext
+	old_hashes.append(data[1])
+
+names = []
+hashes = []
 
 #os.system("pause")
 
 FNULL = open(os.devnull, 'w')
+
+print "Hashing",
 
 for f in os.listdir("."):
 	if f.endswith(".mkv"):
 		subprocess.call('ffmpeg -y -i "' + f + '" -t ' + str(length) + ' temp.wav', shell=True, stdout=FNULL, stderr=subprocess.STDOUT) # .mka is matroska audio, can contain any audio format. c:a:0 incase there are multiple tracks
 		subprocess.call('ffmpeg -y -i temp.wav -c:a copy -t ' + str(length-1) + ' temp2.wav', shell=True, stdout=FNULL, stderr=subprocess.STDOUT) # .mka is matroska audio, can contain any audio format. c:a:0 incase there are multiple tracks
 		current_hash = hash_file("temp2.wav")
-		found_match = False
-		for title,stored_hash in HASHES.iteritems():
-			if current_hash == stored_hash:
-				found_match = True
-				#os.system("pause")
-				if shouldrename == True:
-					print "Renaming " + f + " --> " + title + renamed_file_extension
-					shutil.move(f, output_folder + title + renamed_file_extension)
-				else:
-					print f + " == " + title
-					#print f + " (" + current_hash + ")" + " == " + title + " (" + stored_hash + ")"
-				continue
-		if found_match is False:
-			print "No match for " + f
-			raw_input("Press any key to continue...")
+		names.append(f)
+		hashes.append(current_hash)
+		print ".",
 
 os.remove("temp.wav")
 os.remove("temp2.wav")
+
+print "done"
+print "Checking for duplicate hashes",
+
+dupes = {}
+for i, h in enumerate(hashes):
+	print ".",
+	if hashes.count(h) > 1:
+		dupes[names[i]] = h
+
+no_matches = 0
+
+if len(dupes) > 0:
+	print "\nDuplicate found! Cannot continue."
+	print "These files have the same hashes:"
+	for n, h in dupes.items():
+		print "\t" + n + " (" + h + ")"
+	print "Go back to the extraction step, and edit the length in extract.bat to be longer (also change it in this script (rename.py))"
+	print "If you still get the error even after doing that, there are probably two videos of the same episode"
+	raw_input("Press any key to exit...")
+	sys.exit(1)
+else:
+	print "done (none found)"
+	for i, h in enumerate(hashes):
+		old_name = names[i]
+		try:
+			new_name = old_names[old_hashes.index(h)] + renamed_file_extension
+		except ValueError:
+			no_matches += 1
+			print "No match for " + old_name
+			print "You can continue but you probably have to rename it manually"
+			if no_matches > 4:
+				print "Since you seem to be getting this error alot, maybe your length in extract.bat and rename.py aren't the same,"
+				print "or maybe the audio was altered in the properly named videos?"
+			raw_input("Press any key to continue...")
+			continue
+
+		if shouldrename == True:
+			print "Renaming " + old_name + " --> " + new_name
+			shutil.move(old_name, output_folder + new_name)
+		else:
+			print old_name + " == " + new_name
 
 print "Done"
 raw_input("Press any key to exit...")
