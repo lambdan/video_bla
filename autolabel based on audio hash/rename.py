@@ -6,10 +6,24 @@ import hashlib
 
 HASHES_TXT = "hashes.txt"
 renamed_file_extension = ".mkv" # include . !!! i recommend mkv as it can swallow anything
-audio_extension = ".ac3" # include . !!! should be same as your properly labeled versions
 output_folder = "Renamed/"
-shouldrename = False # edit this to actually start renaming
+length = 2 # must be same as in extract.bat
 
+print "Settings:\n\tHashes txt = " + HASHES_TXT + "\n\tOutput Container = " + renamed_file_extension + "\n\tOutput Folder = " + output_folder + "\n\tAudio Length = " + str(length) + "\n"
+
+if not os.path.isfile(HASHES_TXT):
+	print HASHES_TXT + " not found. Cannot continue."
+	raw_input("Press any key to exit...")
+	sys.exit(1)
+
+sr = raw_input("Do you want to Rename Now (Y), just test/dry-run (N) or exit (X)?: ")
+if sr.lower() == "y":
+	shouldrename = True
+elif sr.lower() == "n":
+	print "OK! I will NOT rename any files."
+	shouldrename = False
+else:
+	sys.exit(1)
 
 def hash_file(filename):
    """"This function returns the SHA-1 hash
@@ -49,8 +63,9 @@ FNULL = open(os.devnull, 'w')
 
 for f in os.listdir("."):
 	if f.endswith(".mkv"):
-		subprocess.call('ffmpeg -y -i "' + f + '" -c:a:0 copy temp' + audio_extension, shell=True, stdout=FNULL, stderr=subprocess.STDOUT) # .mka is matroska audio, can contain any audio format. c:a:0 incase there are multiple tracks
-		current_hash = hash_file("temp" + audio_extension)
+		subprocess.call('ffmpeg -y -i "' + f + '" -t ' + str(length) + ' temp.wav', shell=True, stdout=FNULL, stderr=subprocess.STDOUT) # .mka is matroska audio, can contain any audio format. c:a:0 incase there are multiple tracks
+		subprocess.call('ffmpeg -y -i temp.wav -c:a copy -t ' + str(length-1) + ' temp2.wav', shell=True, stdout=FNULL, stderr=subprocess.STDOUT) # .mka is matroska audio, can contain any audio format. c:a:0 incase there are multiple tracks
+		current_hash = hash_file("temp2.wav")
 		found_match = False
 		for title,stored_hash in HASHES.iteritems():
 			if current_hash == stored_hash:
@@ -65,5 +80,10 @@ for f in os.listdir("."):
 				continue
 		if found_match is False:
 			print "No match for " + f
+			raw_input("Press any key to continue...")
 
-os.remove("temp" + audio_extension)
+os.remove("temp.wav")
+os.remove("temp2.wav")
+
+print "Done"
+raw_input("Press any key to exit...")

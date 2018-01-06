@@ -3,7 +3,13 @@ import sys
 import subprocess
 import hashlib
 
-audio_extension = ".ac3"
+outputfile = "hashes.txt"
+
+names = []
+hashes = []
+
+if os.path.isfile(outputfile):
+	os.remove(outputfile)
 
 def hash_file(filename):
    """"This function returns the SHA-1 hash
@@ -26,5 +32,31 @@ def hash_file(filename):
    return h.hexdigest()
 
 for f in os.listdir("."):
-	if f.endswith(audio_extension):
-		print f + " = " + hash_file(f)
+	if f.endswith(".wav"):
+		hashresult = hash_file(f)
+		names.append(f)
+		hashes.append(hashresult)
+		print f + " = " + hashresult
+		with open(outputfile, "a") as myfile:
+			myfile.write(f + " = " + hashresult + "\n")
+
+# Verify and see if there are dupes
+
+dupes = {}
+for i, h in enumerate(hashes):
+	if hashes.count(h) > 1:
+		dupes[names[i]] = h
+
+if len(dupes) > 0:
+	print "\nDuplicate found! These hashes cannot be used for renaming!"
+	print "These files have the same hashes:"
+	for n, h in dupes.items():
+		print "\t" + n + " (" + h + ")"
+	print "Go back to the extraction step, and edit the length in extract.bat to be longer (also change it in rename.py)"
+	print "That should add more uniqueness."
+	os.remove(outputfile)
+else:
+	print "All good! Copy hashes.txt to the folder with the unnamed files, along with rename.py"
+
+raw_input("Press any key to exit...")
+sys.exit(1)

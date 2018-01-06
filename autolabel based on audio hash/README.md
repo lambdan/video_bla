@@ -1,17 +1,39 @@
-Compares audio track hashes. Useful if you ripped something and kept the audio unaltered, and now you wanna re-rip again but you don't want to re-identify the video files/episodes. You can hash the audio tracks of the properly labeled episodes, and then use it to find the same hash in the "unorganized" video files/episodes and rename appropriately.
-Obviously requires untouched audio ("passthru"). Encoded/altered audio tracks won't have the same hash.
+Compares audio track hashes to automatically rename TV Episodes to what you previously named them.
 
-Only ran on Windows 10 with Python 2.7, but you can very easily run it on Linux/macOS. Just make a bash version of extract.bat (loop through all mkv files, and run `ffmpeg -i input.mkv -c:a:0 copy /path/to/output.ext`). The .py scripts should be cross platform already.
+Useful if you've previously ripped TV Shows/Episodes with [MakeMKV][makemkv] and properly labeled them, then transcoded the video but kept the audio in the original format/passed it through, removed the MakeMKV originals, and now you want to re-rip them again but don't want to manually identify and rename the episodes again.
 
-How to use:
+If you altered the audio in any way this won't work, because the hashes won't be the same !!!
+If you made DTS into AC3 or AC3 Stereo in AAC, or anything like that, you cannot use this.
+Even a scratch on your disc can cause the audio to be very slightly altered, thus making it impossible to use this script.
+Atleast right now. Maybe in the future I am smarter and can figure out a way.
 
-1. Put extract.bat in the folder that has the properly labeled video files (.mkv), and edit the path in the script to better suit you (also make sure you change the audio extension if necessary). 
-Then run the script. This will take a while, extracting the first audio track out of each video. 
+Only ran on Windows 10 with Python 2.7, but you can very easily run it on Linux/macOS. Just make a bash version of extract.bat, or manually do the commands. The .py scripts should be cross platform already.
 
-2. Put hash.py in the folder with the audio track files (.ac3 etc), and pipe it's output to a text file, i.e. `hash.py > hashes.txt`. This will also take a while.
+Concept
 
-3. Put rename.py in the folder with the unorganized/unlabeled MKV files, along with the hashes.txt file you got from the 2nd step, and modify the lines at the top of the script to your taste. (Ideally you only need to change shouldrename = False to True)
-I recommend running the script first with "shouldrename = False" to make sure it's doing it right. When you trust it, cancel the script, edit "shouldrename = False" to True, and then run again. It will then rename.
+- Extract the first couple of seconds of audio from the files that are already labeled, into WAV files
+- Hash (sha1) those audio files and store the filenames and hashes
+- Do the same for the unlabeled files
+- Compare hashes, and if they match, rename the unlabeled video to what the previously renamed video was called
 
-Q: Why not just extract audio into .mka container? It takes all formats!
-A: True! And I tried! But the hashes weren't the same each time, so it cannot be used.
+How to use
+
+1. Put extract.bat in the folder that has the properly labeled video files. Edit the top lines in the script to change output path where the WAV files appear, length of audio to extract (2 worked for me and should be the lowest possible*), and which files to match (defaults to all mp4 files (*.mp4).
+Then run the batch script.
+
+2. Put hash.py in the folder with the WAV files you just got and run it. If it tells you there are duplicate hashes, you need to go back a step and increase the audio length.
+
+3. Put rename.py in the folder with the unorganized/unlabeled MKV files, along with the hashes.txt file you got from the 2nd step, and modify the lines at the top of the script to your taste if necessary (if you changed audio length in extract.py, you need to change length here as well)
+
+When you run rename.py it will ask you if you want to start renaming or just test/dry-run. I recommend testing/dry-running first to see that it's working properly. After that, let it rename.
+
+Tested with my That '70s Show PAL DVDs and it worked perfectly.
+
+* 2 seconds is the lowest length we can use, because sometimes when you extract audio from a video the length won't be exactly the same, it will vary by a few milliseconds depending on interleaves and keyframe intervals etc. If we try to compare hashes on two _seemingly_ identical audio extractions that came from two different video files, the hash will differ because the length is different. However, if we then extract a section of audio from these audio extractions the results are always the same (for some reason), and then we can hash them and get identical values. I guess you can mess around with milliseconds, but whatever. 2 seconds is already very fast, and honestly, even 30 seconds doesn't take long.
+
+History:
+
+2018-01-06 = Literally atleast 1000x faster (just hash a few seconds (2 secs by default) instead of the whole audio track), Python scripts much more user friendly, no need to change audio format/extension (I use WAV now), check and stop for duplicate hashes, warn about unmatched videos
+2017-12-15 = Initial Version
+
+[makemkv]: https://www.makemkv.com/
